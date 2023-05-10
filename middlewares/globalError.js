@@ -5,7 +5,7 @@ const globalError = (err, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     sendErrorForDev(err, res);
   } else {
-    sendErrorForPord(err, res);
+    sendErrorForProd(err, res);
   }
 };
 
@@ -18,7 +18,7 @@ const sendErrorForDev = (err, res) => {
   });
 };
 
-const sendErrorForPord = (err, res) => {
+const sendErrorForProd = (err, res) => {
   return res.status(err.statusCode).json({
     status: err.status,
     message: err.message,

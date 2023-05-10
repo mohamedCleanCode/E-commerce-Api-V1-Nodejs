@@ -8,7 +8,7 @@ dotenv.config({
 const dbConnection = require("./config/dbConnection");
 const categoryRoute = require("./routes/categoryRoute");
 const ApiError = require("./utils/ApiError");
-const globalError = require("./middlewares/errorMiddleware");
+const globalError = require("./middlewares/globalError");
 
 // Connect Database
 dbConnection();
@@ -17,10 +17,10 @@ dbConnection();
 const app = express();
 
 // Middlewares
-app.use(express.json());
+app.use(express.json()); // Parser
 
 if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
+  app.use(morgan("dev")); // Show Routes
   console.log(process.env.NODE_ENV);
 }
 

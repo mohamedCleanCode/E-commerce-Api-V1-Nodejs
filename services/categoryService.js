@@ -14,7 +14,7 @@ exports.getCategories = asyncHandler(async (req, res) => {
   res.status(200).json({ results: caegories.length, page, data: caegories });
 });
 
-// @desc   Get specific category
+// @desc   Get specific category by id
 // @route  GET /api/v1/categories/:id
 // @access Public
 exports.getCategory = asyncHandler(async (req, res, next) => {
@@ -49,6 +49,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   if (!category) {
     return next(new ApiError(`No category with this ${id}`, 404));
   }
+  res.status(200).json({ data: category });
 });
 
 // @desc   Delete category
