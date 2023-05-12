@@ -7,12 +7,12 @@ const subCategoerySchema = mongoose.Schema(
       trim: true,
       required: [true, "Subcategory required"],
       unique: [true, "Subcategory must be unique"],
-      minLength: [3, "To short Subcategory name"],
+      minLength: [2, "To short Subcategory name"],
       maxLength: [32, "To long Subcategory name"],
     },
     slug: {
       type: String,
-      lowerCase: true,
+      lowercase: true,
     },
     // Parent
     category: {
