@@ -1,10 +1,10 @@
 const { check } = require("express-validator");
 const validatorLayer = require("../../middlewares/validatorLayer");
 
-// exports.getCategoryValidator = [
-//   check("id").isMongoId().withMessage("Invalid Id"),
-//   validatorLayer,
-// ];
+exports.getSubCategoryValidator = [
+  check("id").isMongoId().withMessage("Invalid Id"),
+  validatorLayer,
+];
 
 exports.createSubCategoryValidator = [
   check("name")
