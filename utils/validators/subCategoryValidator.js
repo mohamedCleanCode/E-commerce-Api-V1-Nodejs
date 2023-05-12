@@ -36,7 +36,7 @@ exports.updateSubCategoryValidator = [
   validatorLayer,
 ];
 
-// exports.deleteCategoryValidator = [
-//   check("id").isMongoId().withMessage("Invalid Id"),
-//   validatorLayer,
-// ];
+exports.deleteSubCategoryValidator = [
+  check("id").isMongoId().withMessage("Invalid Id"),
+  validatorLayer,
+];
