@@ -23,7 +23,13 @@ exports.getSubCategories = asyncHandler(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit || 50;
   const skip = (page - 1) * limit;
-  const subCategories = await SubCategoryModel.find({}).limit(limit).skip(skip);
+  let filterObject = {};
+
+  if (req.params.categoryId) filterObject = { category: req.params.categoryId };
+
+  const subCategories = await SubCategoryModel.find(filterObject)
+    .limit(limit)
+    .skip(skip);
   res.status(200).json({ data: subCategories });
 });
 
@@ -33,6 +39,7 @@ exports.getSubCategories = asyncHandler(async (req, res, next) => {
 exports.getSubCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const subCategory = await SubCategoryModel.findById(id);
+  // .populate({path: "category",select: "name",});
   if (!subCategory) {
     return next(new ApiError(`No subCategory with this ${id}`, 404));
   }
@@ -44,12 +51,13 @@ exports.getSubCategory = asyncHandler(async (req, res, next) => {
 // @access Private
 exports.updateSubCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name, category } = req.body;
   const subCategory = await SubCategoryModel.findOneAndUpdate(
     { _id: id },
     {
       name,
       slug: slugify(name),
+      category,
     },
     { new: true }
   );

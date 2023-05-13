@@ -33,6 +33,12 @@ exports.updateSubCategoryValidator = [
       max: 32,
     })
     .withMessage("SubCategory name must be 2 to 32 character"),
+  check("category")
+    .notEmpty()
+    .withMessage("Category name is required")
+    .isMongoId()
+    .withMessage("Invalid category id"),
+
   validatorLayer,
 ];
 
