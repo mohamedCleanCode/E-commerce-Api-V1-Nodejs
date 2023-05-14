@@ -16,6 +16,13 @@ exports.createSubCategory = asyncHandler(async (req, res) => {
   res.status(201).json({ data: subCategory });
 });
 
+// @desc   Set categoryId to body of req
+// @route  POST /api/v1/categories/:categoryId/subcategories
+exports.setCategoryIdToBody = (req, res, next) => {
+  if (!req.body.category) req.body.category = req.params.categoryId;
+  next();
+};
+
 // @desc   Get subCategories
 // @route  GET api/v1/subcategories
 // @access Public
@@ -23,15 +30,23 @@ exports.getSubCategories = asyncHandler(async (req, res, next) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit || 50;
   const skip = (page - 1) * limit;
-  let filterObject = {};
 
-  if (req.params.categoryId) filterObject = { category: req.params.categoryId };
-
-  const subCategories = await SubCategoryModel.find(filterObject)
+  const subCategories = await SubCategoryModel.find(req.body.filterObject)
     .limit(limit)
     .skip(skip);
   res.status(200).json({ data: subCategories });
 });
+
+// @desc   Set filterObj to body of req
+// @route  GET /api/v1/categories/:categoryId/subcategories
+exports.setFilterObj = (req, res, next) => {
+  let filterObject = {};
+  if (req.params.categoryId) {
+    filterObject = { category: req.params.categoryId };
+  }
+  req.body.filterObject = filterObject;
+  next();
+};
 
 // @desc   Get specific subCategory
 // @route  GET api/v1/subcategories/:id
