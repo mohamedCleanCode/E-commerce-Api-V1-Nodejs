@@ -21,6 +21,6 @@ const brandSchema = new mongoose.Schema(
 );
 
 // 2- Create Model
-const BrandModel = mongoose.model("Category", brandSchema);
+const BrandModel = mongoose.model("Brand", brandSchema);
 
 module.exports = BrandModel;
