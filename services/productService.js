@@ -10,7 +10,13 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const page = req.query.page * 1 || 1;
   const limit = req.query.limit * 1 || 5;
   const skip = (page - 1) * limit;
-  const products = await ProductModel.find({}).limit(limit).skip(skip);
+  const products = await ProductModel.find({})
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: "category",
+      select: "name",
+    });
   res.status(200).json({ results: products.length, page, data: products });
 });
 
@@ -19,7 +25,10 @@ exports.getProducts = asyncHandler(async (req, res) => {
 // @access Public
 exports.getProduct = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const product = await ProductModel.findById(id);
+  const product = await ProductModel.findById(id).populate({
+    path: "category",
+    select: "name",
+  });
   if (!product) {
     return next(new ApiError(`No product with this ${id}`, 404));
   }
