@@ -47,10 +47,12 @@ const productSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    subCategory: {
-      type: mongoose.Schema.ObjectId,
-      ref: "SubCategory",
-    },
+    subCategories: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "SubCategory",
+      },
+    ],
     brand: {
       type: mongoose.Schema.ObjectId,
       ref: "Brand",
