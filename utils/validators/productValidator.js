@@ -74,12 +74,25 @@ exports.createProductValidator = [
     .optional()
     .isMongoId()
     .withMessage("Invalid id for subCategory")
-    .custom((value) => {
-      const subCategories = SubCategoryModel.find({
+    .custom(async (value) => {
+      const subCategories = await SubCategoryModel.find({
         _id: { $exists: true, $in: value },
       });
       if (!subCategories || subCategories.length !== value.length) {
         throw new Error("Invalid Subcategories ids");
+      }
+      return true;
+    })
+    .custom(async (value, { req }) => {
+      const subCategories = await SubCategoryModel.find({
+        category: req.body.category,
+      });
+      const subCategoriesIdsInDB = [];
+      subCategories.forEach((subCategory) => {
+        subCategoriesIdsInDB.push(subCategory._id.toString());
+      });
+      if (!value.every((v) => subCategoriesIdsInDB.includes(v))) {
+        throw new Error("Subcategories not belong to category");
       }
       return true;
     }),
