@@ -11,7 +11,6 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const queryStringObj = { ...req.query };
   const excludesFields = ["page", "limit", "sort", "fields"];
   excludesFields.forEach((field) => delete queryStringObj[field]);
-  console.log(queryStringObj);
 
   // {price: {gte: "50"}, ratingsAverage: {gte: "4"}}
   let queryStr = JSON.stringify(queryStringObj);
@@ -25,7 +24,7 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const limit = req.query.limit * 1 || 50;
   const skip = (page - 1) * limit;
 
-  // ) Build query
+  // Build query
   let mongooseQuery = ProductModel.find(queryStr)
     // .where("price")
     // .equals(req.query.price)
@@ -41,13 +40,21 @@ exports.getProducts = asyncHandler(async (req, res) => {
   // 3) Sorting
   if (req.query.sort) {
     const sosrtBy = req.query.sort.split(",").join(" ");
-    console.log(sosrtBy);
     mongooseQuery = mongooseQuery.sort(sosrtBy);
   } else {
     mongooseQuery = mongooseQuery.sort("createdAt");
   }
 
-  // ) Execute Query
+  // 4) Fields limiting
+  if (req.query.fields) {
+    const limitBy = req.query.fields.split(",").join(" ");
+    console.log(limitBy);
+    mongooseQuery = mongooseQuery.select(limitBy);
+  } else {
+    mongooseQuery = mongooseQuery.select("-__v");
+  }
+
+  // Execute Query
   const products = await mongooseQuery;
   res.status(200).json({ results: products.length, page, data: products });
 });
