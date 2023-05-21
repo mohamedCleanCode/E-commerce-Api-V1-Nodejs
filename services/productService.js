@@ -25,8 +25,8 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const limit = req.query.limit * 1 || 50;
   const skip = (page - 1) * limit;
 
-  // 3) Build query
-  const mongooseQuery = ProductModel.find(queryStr)
+  // ) Build query
+  let mongooseQuery = ProductModel.find(queryStr)
     // .where("price")
     // .equals(req.query.price)
     // .where("ratingsAverage")
@@ -38,7 +38,16 @@ exports.getProducts = asyncHandler(async (req, res) => {
       select: "name",
     });
 
-  // 4) Execute Query
+  // 3) Sorting
+  if (req.query.sort) {
+    const sosrtBy = req.query.sort.split(",").join(" ");
+    console.log(sosrtBy);
+    mongooseQuery = mongooseQuery.sort(sosrtBy);
+  } else {
+    mongooseQuery = mongooseQuery.sort("createdAt");
+  }
+
+  // ) Execute Query
   const products = await mongooseQuery;
   res.status(200).json({ results: products.length, page, data: products });
 });
