@@ -9,7 +9,7 @@ const ApiError = require("../utils/ApiError");
 exports.getProducts = asyncHandler(async (req, res) => {
   // 1) Filteration
   const queryStringObj = { ...req.query };
-  const excludesFields = ["page", "limit", "sort", "fields"];
+  const excludesFields = ["page", "limit", "sort", "fields", "keyword"];
   excludesFields.forEach((field) => delete queryStringObj[field]);
 
   // {price: {gte: "50"}, ratingsAverage: {gte: "4"}}
@@ -52,6 +52,22 @@ exports.getProducts = asyncHandler(async (req, res) => {
     mongooseQuery = mongooseQuery.select(limitBy);
   } else {
     mongooseQuery = mongooseQuery.select("-__v");
+  }
+
+  // 5) Search
+  if (req.query.keyword) {
+    console.log(req.query.keyword);
+    const query = {};
+    query.$or = [
+      { title: { $regex: req.query.keyword, $options: "i" } },
+      { description: { $regex: req.query.keyword, $options: "i" } },
+    ];
+    mongooseQuery = mongooseQuery.find(query);
+
+    // $or: [
+    //   { title: { $regex: req.query.keyword, $options: "i" } },
+    //   { description: { $regex: req.query.keyword, $options: "i" } },
+    // ],
   }
 
   // Execute Query
