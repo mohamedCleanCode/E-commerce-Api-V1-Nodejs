@@ -2,77 +2,31 @@ const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
 const ProductModel = require("../models/productModel");
 const ApiError = require("../utils/ApiError");
+const ApiFeatures = require("../utils/ApiFeatures");
 
 // @desc   Get products
 // @route  GET /api/v1/products
 // @access Public
 exports.getProducts = asyncHandler(async (req, res) => {
-  // 1) Filteration
-  const queryStringObj = { ...req.query };
-  const excludesFields = ["page", "limit", "sort", "fields", "keyword"];
-  excludesFields.forEach((field) => delete queryStringObj[field]);
-
-  // {price: {gte: "50"}, ratingsAverage: {gte: "4"}}
-  let queryStr = JSON.stringify(queryStringObj);
-  // {price: {$gte: "50"}, ratingsAverage: {$gte: "4"}}
-  queryStr = JSON.parse(
-    queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
-  );
-
-  // 2) Pagination
-  const page = req.query.page * 1 || 1;
-  const limit = req.query.limit * 1 || 50;
-  const skip = (page - 1) * limit;
-
+  const documentsCount = await ProductModel.countDocuments();
   // Build query
-  let mongooseQuery = ProductModel.find(queryStr)
-    // .where("price")
-    // .equals(req.query.price)
-    // .where("ratingsAverage")
-    // .equals(req.query.ratingsAverage)
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "category",
-      select: "name",
-    });
-
-  // 3) Sorting
-  if (req.query.sort) {
-    const sosrtBy = req.query.sort.split(",").join(" ");
-    mongooseQuery = mongooseQuery.sort(sosrtBy);
-  } else {
-    mongooseQuery = mongooseQuery.sort("createdAt");
-  }
-
-  // 4) Fields limiting
-  if (req.query.fields) {
-    const limitBy = req.query.fields.split(",").join(" ");
-    console.log(limitBy);
-    mongooseQuery = mongooseQuery.select(limitBy);
-  } else {
-    mongooseQuery = mongooseQuery.select("-__v");
-  }
-
-  // 5) Search
-  if (req.query.keyword) {
-    console.log(req.query.keyword);
-    const query = {};
-    query.$or = [
-      { title: { $regex: req.query.keyword, $options: "i" } },
-      { description: { $regex: req.query.keyword, $options: "i" } },
-    ];
-    mongooseQuery = mongooseQuery.find(query);
-
-    // $or: [
-    //   { title: { $regex: req.query.keyword, $options: "i" } },
-    //   { description: { $regex: req.query.keyword, $options: "i" } },
-    // ],
-  }
+  const apiFeatures = new ApiFeatures(ProductModel.find(), req.query)
+    .paginate(documentsCount)
+    .filter()
+    .search()
+    .fields()
+    .sort();
+  // .populate({
+  //   path: "category",
+  //   select: "name",
+  // });
 
   // Execute Query
+  const { mongooseQuery, paginationResult } = apiFeatures;
   const products = await mongooseQuery;
-  res.status(200).json({ results: products.length, page, data: products });
+  res
+    .status(200)
+    .json({ results: products.length, paginationResult, data: products });
 });
 
 // @desc   Get specific product by id
