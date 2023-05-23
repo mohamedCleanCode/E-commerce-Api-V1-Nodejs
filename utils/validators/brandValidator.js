@@ -1,4 +1,5 @@
 const { check } = require("express-validator");
+const slugify = require("slugify");
 const validatorLayer = require("../../middlewares/validatorLayer");
 
 exports.getBrandValidator = [
@@ -15,11 +16,19 @@ exports.createBrandValidator = [
       max: 32,
     })
     .withMessage("Brand name must be 3 to 32 character"),
+  check("name").custom((value, { req }) => {
+    req.body.slug = slugify(value);
+    return true;
+  }),
   validatorLayer,
 ];
 
 exports.updateBrandValidator = [
   check("id").isMongoId().withMessage("Invalid Id"),
+  check("name").custom((value, { req }) => {
+    req.body.slug = slugify(value);
+    return true;
+  }),
   validatorLayer,
 ];
 

@@ -1,4 +1,5 @@
 const { check } = require("express-validator");
+const slugify = require("slugify");
 const validatorLayer = require("../../middlewares/validatorLayer");
 
 exports.getCategoryValidator = [
@@ -15,11 +16,19 @@ exports.createCategoryValidator = [
       max: 32,
     })
     .withMessage("Category name must be 3 to 32 character"),
+  check("name").custom((value, { req }) => {
+    req.body.slug = slugify(value);
+    return true;
+  }),
   validatorLayer,
 ];
 
 exports.updateCategoryValidator = [
   check("id").isMongoId().withMessage("Invalid Id"),
+  check("name").custom((value, { req }) => {
+    req.body.slug = slugify(value);
+    return true;
+  }),
   validatorLayer,
 ];
 
