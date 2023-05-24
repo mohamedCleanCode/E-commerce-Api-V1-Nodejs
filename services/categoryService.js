@@ -1,35 +1,16 @@
-const slugify = require("slugify");
-const asyncHandler = require("express-async-handler");
 const CategoryModel = require("../models/categoryModel");
-const ApiError = require("../utils/ApiError");
-const ApiFeatures = require("../utils/ApiFeatures");
 const {
   deleteOne,
   updateOne,
   getOne,
   createOne,
+  getAll,
 } = require("./handlersFactory");
 
 // @desc   Get categories
 // @route  GET /api/v1/categories
 // @access Public
-exports.getCategories = asyncHandler(async (req, res) => {
-  const documentsCount = await CategoryModel.countDocuments();
-  // Build query
-  const apiFeatures = new ApiFeatures(CategoryModel.find(), req.query)
-    .paginate(documentsCount)
-    .filter()
-    .search()
-    .fields()
-    .sort();
-
-  // Execute Query
-  const { mongooseQuery, paginationResult } = apiFeatures;
-  const caegories = await mongooseQuery;
-  res
-    .status(200)
-    .json({ results: caegories.length, paginationResult, data: caegories });
-});
+exports.getCategories = getAll(CategoryModel);
 
 // @desc   Create category
 // @route  POST /api/v1/categories
